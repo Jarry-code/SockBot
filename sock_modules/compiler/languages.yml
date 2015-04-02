@@ -109,10 +109,10 @@
     code: "sql"
   41: 
     name: "C++ 4.3.2 gcc-4.3.2"
-    code: "cpp"
+    code: ""
   43: 
     name: "Objective-C gcc-4.5.1"
-    code: ""
+    code: "cpp"
   44: 
     name: "C++14 gcc-4.9.2"
     code: ""

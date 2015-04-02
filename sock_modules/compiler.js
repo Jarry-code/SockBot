@@ -1,9 +1,10 @@
 'use strict';
 var async = require('async'),
-        fs = require('fs'),
-        yml = require('js-yaml'),
-        rpc = require('./compiler/jsonrpc'),
-        cheerio = require('cheerio');
+    fs = require('fs'),
+    yml = require('js-yaml'),
+    rpc = require('./compiler/jsonrpc'),
+    cheerio = require('cheerio'),
+    ent = require('ent');
 var errors,
         languages,
         config,
@@ -32,6 +33,12 @@ exports.commands = {
         params: [],
         defaults: {},
         description: 'list languages.'
+    },
+    supported: {
+        handler: supported,
+        params: [],
+        defaults: {},
+        description: 'list languages supported.'
     }
 };
 
@@ -64,7 +71,7 @@ function compile(payload, callback) {
         callback(null,'http://i1.theportalwiki.net/img/1/17/GLaDOS_escape_02_miscbabble-19.wav \n <!-- no code detected -->');
         return;
     }
-    var source = code.html();
+    var source = ent.decode(code.html());
     var langCode = code.attr('class').split('-')[1];
     console.log(langCode);
 
@@ -78,7 +85,7 @@ function compile(payload, callback) {
     
     if(lang == undefined)
     {
-        callback(null,'http://i1.theportalwiki.net/img/1/17/GLaDOS_escape_02_miscbabble-19.wav \n <!-- no language detected -->');
+        callback(null,'http://i1.theportalwiki.net/img/d/d1/GLaDOS_escape_02_spheredestroy3-01.wav \n <!-- no language detected -->');
         return;
     }
     var link = '';
@@ -117,7 +124,22 @@ function details(link, callback) {
 
 function formatResult(result, link)
 {
-    return result.output + '\n' + 'link: http://ideone.com/' + link;
+    var tmp = "";
+    if(result.result == 15) //ok
+    {
+        tmp = result.output;
+    }
+    else if(result.result == 11) //compiler error
+    {
+        tmp = 'Compiler error!\n\n';
+    }
+    else if(result.result == 12) //runtime error
+    {
+        tmp = 'Runtime error!' + result.cmpinfo;
+    }
+    return tmp + '<hr>' + 
+                 'Compiler Info: ' + result.cmpinfo + '\n\n' + 
+                 'stderr: ' + result.stderr + '\n\n' + 'link: http://ideone.com/' + link;
 }
 
 function listLangs(_, callback) {
@@ -130,4 +152,18 @@ function listLangs(_, callback) {
     }, "");
 
     callback(null, langList);
+};
+
+function supported(_, callback) {
+
+    var supList = Object.keys(languages).reduce(function (previous, current) {
+        
+        if (languages[current].code !== "") {
+            previous += "* [" + languages[current].code + "] " +
+                    languages[current].name + '\n';
+        }
+        return previous;
+    }, "");
+
+    callback(null, supList);
 };
