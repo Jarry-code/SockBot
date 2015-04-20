@@ -35,7 +35,7 @@ help.muteable = false;
 help.prefix = false;
 
 function info(args, callback) {
-    var ret = discourse.version(),
+    var ret = discourse.version().bootString,
         sleepy = new Date(discourse.sleep()),
         now = new Date();
     ret += '\nCurrent time:\t' + now.toUTCString();
@@ -75,16 +75,6 @@ function handleCommand(post, command, args, callback) {
         callback(msg, cmd.muteable);
     });
 }
-
-exports.onNotify = function notify(type, notification, topic, post, callback) {
-    discourse.log('Notification ' + type + ' from ' +
-        notification.data.display_username + ' in "' +
-        notification.data.topic_title + '"');
-    if (post && post.raw) {
-        discourse.log('\t' + (post.raw || '').split('\n')[0]);
-    }
-    callback();
-};
 
 exports.onCommand = function onCommand(type, command, args, data, callback) {
     if (type !== 'private_message'){

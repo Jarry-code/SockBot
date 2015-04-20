@@ -27,7 +27,7 @@ exports.begin = function begin(browser, c) {
     discourse = browser;
     plotly = plotly(config.plotlyuser, config.plotlypass);
     cmdMatcher = new XRegExp('@' + c.username +
-        '(?<type>\\s+(graph|table))?\\s+(?<stats>\\w+)(?<args>(\\s+(\\w+))*)',
+        '(?<type>\\s+(graph|table))?\\s+(?<stats>\\S+)(?<args>(\\s+(\\S+))*)',
         'ig');
     helpMatcher = new XRegExp('@' + c.username + ' (list|list queries)', 'ig');
     async.forever(function (nextTick) {
@@ -37,17 +37,19 @@ exports.begin = function begin(browser, c) {
     });
 };
 
-function parseArgs(parts, query, post) {
+function parseArgs(parts, query, post) { //eslint-disable-line max-statements
     var defaults = [],
         trust = post.trust_level,
         i;
     if (parts.args) {
         parts.args = parts.args.trim().split(' ');
     }
-    for (; trust >= 0; trust -= 1) {
-        if (query.config.defaults[trust]) {
-            defaults = query.config.defaults[trust].slice();
-            break;
+    if (query.config.defaults) {
+        for (; trust >= 0; trust -= 1) {
+            if (query.config.defaults[trust]) {
+                defaults = query.config.defaults[trust].slice();
+                break;
+            }
         }
     }
     if (post.trust_level >= 4 && parts.args) {
@@ -239,7 +241,7 @@ function checkCooldown(topic) {
 }
 
 exports.onNotify = function (type, notification, topic, post, callback) {
-    if (['private_message', 'mentioned', 'replied'].indexOf(type) < 0) {
+    if (['private_message', 'mentioned'].indexOf(type) < 0) {
         return callback();
     }
     var cmd = parseCmd(post);
@@ -263,20 +265,24 @@ function listQueries(notification, callback) {
     if (!queries) {
         discourse.warn('Queries not loaded');
         return discourse.createPost(notification.topic_id,
-            notification.post_number, 'No queries available',
+            notification.post_number, 'No queries available;'
+                + ' someone probably @&shy;accalia\'d the YAML :blush:',
             function () {
-            callback(true);
-        });
+                callback(true);
+            });
     }
     var res = queries.map(function (q) {
         var args;
-        for (var i = 0; i <= 10; i += 1) {
-            if (q.config.defaults[i]) {
-                args = '\'' + q.config.defaults[i].join('\' \'') + '\'';
-                break;
+        if (q.config.defaults) {
+            for (var i = 0; i <= 10; i += 1) {
+                if (q.config.defaults[i]) {
+                    args = '\'' + q.config.defaults[i].join('\' \'') + '\'';
+                    break;
+                }
             }
         }
-        return q.name + ' ' + args + ':\tAvailable to trust level ' +
+        var query = args ? q.name + ' ' + args : q.name;
+        return query + ':\tAvailable to trust level ' +
             q.config.trust_level + '+';
     });
     res.unshift('Available queries:');

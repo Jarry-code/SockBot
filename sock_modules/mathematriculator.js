@@ -4,29 +4,29 @@ var math = require('mathjs'),
 var errors;
 
 exports.name = 'Math';
-exports.version = '0.1.2';
+exports.version = '0.2.0';
 exports.description = 'Do mathematics!';
 exports.configuration = {
     enabled: false
 };
 
-exports.commands = {
-    calc: {
-        handler: calc,
-        defaults: {},
-        params: ['expression'],
-        description: 'The mathematical expression to calculate.'
+exports.onCommand = function onCommand(_, command, args, __, callback) {
+    if (command.toLowerCase() !== 'calc'){
+        args.unshift(command);
     }
+    calc(args, callback);
 };
 
 exports.begin = function begin(_, config) {
     errors = config.errors;
+    math.config({
+        number: 'bignumber',
+        precision: 4096
+    });
 };
 
-function calc(payload, callback) {
-    async.series([function () {
-            var args = payload.$arguments;
-            args.unshift(payload.expression);
+function calc(args, callback) {
+    async.series([function (cb) {
             var realExpression = args.join(' ');
             try {
                 var result = math.eval(realExpression);
@@ -37,15 +37,22 @@ function calc(payload, callback) {
                     result,
                     ''
                 ];
-                callback(null, message.join('\n'));
+                cb(null, message.join('\n'));
             } catch (e) {
                 var error = [
                     'Unable to evaluate expression ' + realExpression,
                     errors[Math.floor(Math.random() * errors.length)],
                     ''
                 ];
-                callback(null, error.join('\n'));
+                cb(null, error.join('\n'));
             }
         }
-    ]);
+    ],
+    function (err, results) {
+        if (err) {
+            callback(err, null);
+        } else {
+            callback(null, results[0]);
+        }
+    });
 }

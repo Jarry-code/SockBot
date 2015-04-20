@@ -30,20 +30,23 @@ var fs = require('fs');
 var request = require('request'),
     async = require('async'),
     xRegExp = require('xregexp').XRegExp,
-    conf = require('./configuration').configuration;
-var version = 'SockBot 0.16 "Hazardous Hera"',
-    csrf,
+    conf = require('./configuration').configuration,
+    version = require('./version');
+var csrf,
     jar = request.jar(),
     clientId = uuid(),
     urlbase = conf.url || 'http://what.thedailywtf.com/',
     browser = request.defaults({
+        rejectUnauthorized: false,
         jar: jar,
         headers: {
             'X-Requested-With': 'XMLHttpRequest',
-            'User-Agent': version + ' @' + conf.username
+            'User-Agent': version.userAgent.
+                replace('{{conf.admin.owner}}', conf.admin.owner).
+                replace('{{conf.username}}', conf.username)
         }
     }),
-    tag = '\n\n<!-- Posted by ' + version + ' on %DATE%-->',
+    tag = version.signature.replace('{{conf.admin.owner}}', conf.admin.owner),
     rQuote = xRegExp('\\[quote(?:(?!\\[/quote\\]).)*\\[/quote\\]', 'sgi'),
     rCloseQuote = xRegExp('\\[/quote\\]', 'sgi'),
     delayUntil = new Date().getTime(),
@@ -200,7 +203,7 @@ function handleResponse(callback) {
         }
         try {
             body = JSON.parse(body);
-        } catch (e) {}
+        } catch (e) {} //eslint-disable-line no-empty
         callback(err, resp, body);
     };
 }
@@ -242,7 +245,7 @@ function createPost(topic, replyTo,
         return callback('Muted');
     }
     var form = {
-        'raw': raw + tag.replace('%DATE%', new Date().toUTCString()),
+        'raw': raw + tag,
         'topic_id': topic,
         'is_warning': false,
         'reply_to_post_number': replyTo,
@@ -260,7 +263,7 @@ exports.createPost = createPost;
 exports.createPrivateMessage = function createPrivateMessage(to, title,
     raw, callback) {
     var form = {
-        'raw': raw + tag.replace('%DATE%', new Date().toUTCString()),
+        'raw': raw + tag,
         'is_warning': false,
         'archetype': 'private_message',
         'title': title,

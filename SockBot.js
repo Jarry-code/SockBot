@@ -1,6 +1,10 @@
 /*jslint node: true, indent: 4 */
 /* eslint-disable no-console */
 'use strict';
+
+var version = require('./version');
+console.log(version.bootString);
+
 var fs = require('fs'),
     async = require('async'),
     config = require('./configuration'),
@@ -10,6 +14,10 @@ var fs = require('fs'),
 var browser,
     messageBus,
     sockModules = [];
+
+process.on('exit', function() {
+    console.log(version.bootString);
+});
 
 async.waterfall([
     admin.load,
@@ -70,6 +78,12 @@ async.waterfall([
                     }
                     cb();
                 } else {
+                    if (config.user) {
+                        if (typeof (config.user) === 'object') {
+                            config.user = JSON.stringify(config.user);
+                        }
+                        console.log('Login error: ' + config.user);
+                    }
                     var delay = config.extendRetryLoginDelay
                         ? tries * config.retryLoginDelay
                         : config.retryLoginDelay;
@@ -81,6 +95,12 @@ async.waterfall([
     },
     function (cb) {
         if (!config.user || !config.user.user) {
+            if (config.user) {
+                if (typeof (config.user) === 'object') {
+                    config.user = JSON.stringify(config.user);
+                }
+                console.log('Login error: ' + config.user);
+            }
             console.log('Terminating bot due to failure to log in');
             /* eslint-disable no-process-exit */
             process.exit(0);
