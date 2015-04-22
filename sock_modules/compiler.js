@@ -13,7 +13,7 @@ var errors,
         ideone;
 
 exports.name = 'Compiler';
-exports.version = '0.1.2';
+exports.version = '0.8';
 exports.description = 'Compile and run code!';
 exports.configuration = {
     enabled: false,
@@ -72,16 +72,32 @@ function compile(payload, callback) {
         return;
     }
     var source = ent.decode(code.html());
-    var langCode = code.attr('class').split('-')[1];
-    console.log(langCode);
-
-    Object.keys(languages).forEach(function(index){
-        if(languages[index].code == langCode) {
-            lang = index;
-            return false;
+    
+    
+    if(payload.$arguments[0] === 'langID')
+    {
+        lang = payload.$arguments[1];
+    }
+    else
+    {
+        var langCode;
+        if(payload.$arguments[0] === 'lang')
+        {
+           langCode = payload.$arguments[1];
         }
-            
-    });
+        else
+        {
+            langCode = code.attr('class').split('-')[1];
+        }
+
+        Object.keys(languages).forEach(function(index){
+            if(languages[index].code == langCode) {
+                lang = index;
+                return false;
+            }
+
+        });
+    }
     
     if(lang == undefined)
     {
@@ -124,18 +140,15 @@ function details(link, callback) {
 
 function formatResult(result, link)
 {
-    var tmp = "";
-    if(result.result == 15) //ok
+    var tmp = result.output + "<hr>";
+    
+    if(result.result == 11) //compiler error
     {
-        tmp = result.output;
-    }
-    else if(result.result == 11) //compiler error
-    {
-        tmp = 'Compiler error!\n\n';
+        tmp += 'Compiler error!\n\n';
     }
     else if(result.result == 12) //runtime error
     {
-        tmp = 'Runtime error!' + result.cmpinfo;
+        tmp += 'Runtime error!' + result.cmpinfo;
     }
     return tmp + '<hr>' + 
                  'Compiler Info: ' + result.cmpinfo + '\n\n' + 
@@ -150,7 +163,6 @@ function listLangs(_, callback) {
                 languages[current].code + '\n';
         return previous;
     }, "");
-
     callback(null, langList);
 };
 
