@@ -1,24 +1,56 @@
 /*jslint node: true, indent: 4 */
 (function () {
+
+/**
+ * Sumon module. Summons the bot.
+ * @module sumon
+ */
+
     'use strict';
     var discourse,
         summons = {},
         configuration;
 
     /**
-     * @var {string} description Brief description of this module for Help Docs
+     * Brief description of this module for Help Docs
      */
     exports.description = 'Allow Summoning of bot to play in certain threads';
 
+
     /**
-     * @var {object} configuration Default Configuration settings for this
-     * sock_module
+     * Default Configuration settings for this sock_module
+     * @type {Object}
      */
     exports.configuration = {
+        /**
+         * Is the module enabled?
+         * @type {Boolean}
+         */
         enabled: false,
+
+        /**
+         * What's the timeout for backfilling old summons
+         * @type {Number}
+         */
         autoTimeout: 60 * 1000,
+
+        /**
+         * Unused
+         * @type {Number}
+         */
         userTimeout: 60 * 60 * 1000,
+
+        /**
+         * How likely it is that the bot will respond to summons. 
+         * Probability is between 0 and 1
+         * @type {Number}
+         */
         probability: 1,
+
+        /**
+         * Messages to use when being summoned.
+         * @type {Array}
+         */
         messages: [
             '@%__username__% has summoned me, and so I appear.',
             'Yes master %__name__%, I shall appear as summoned.',
@@ -27,12 +59,12 @@
     };
 
     /**
-     * @var {string} name The name of this sock_module
+     * The name of this sock_module
      */
     exports.name = 'Summoner';
 
     /**
-     * @var {number} priority If defined by a sock_module it is the priority
+     * If defined by a sock_module it is the priority
      * of the module with respect to other modules.
      *
      * sock_modules **should not** define modules with negative permissions.
@@ -41,10 +73,13 @@
     exports.priority = 1000;
 
     /**
-     * @var {string} version The version of this sock_module
+     * The version of this sock_module
      */
     exports.version = '1.1.0';
 
+    /**
+     * Purge summons older than an hour ago. For performance reasons
+     */
     function purgeMemory() {
         var lastHour = (new Date().getTime()) - 60 * 60 * 1000, // an hour ago;
             k; //key
@@ -55,6 +90,15 @@
         }
     }
 
+    /**
+     * Runs on notification. Uses a random chance of appearing to determine if it should appear or not, 
+     * controlled by the module configuration.
+     * @param {string} type - The type of event. Only responds if this is 'mentioned'
+     * @param {string} notification - The notification to respond to
+     * @param {string} topic - Unused.
+     * @param {string} post - The post the notification was for
+     * @param {function} callback - The callback to notify when processing is complete.
+     */
     exports.onNotify = function onNotify(type, notification, topic,
         post, callback) {
         if (type === 'mentioned' && Math.random() < configuration.probability) {
@@ -83,6 +127,12 @@
             callback();
         }
     };
+
+    /**
+     * Bootstrap the module
+     * @param  {string} browser - discourse.
+     * @param  {object} config - The configuration to use
+     */
     exports.begin = function begin(browser, config) {
         configuration = config.modules[exports.name];
         discourse = browser;

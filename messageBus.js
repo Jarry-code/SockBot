@@ -1,20 +1,66 @@
+'use strict';
 /**
+ * Used for dealing with long poll notifications from discourse.
  * @module messageBus
  * @author Accalia
  * @license MIT
- * @overview Used for dealing with long poll notifications from discourse.
  */
-'use strict';
 
 var async = require('async'),
     conf = require('./configuration').configuration,
     discourse = require('./discourse');
 
+/**
+ * Completion callback for a message handler
+ * @callback completed
+ * @param {?Exception|string} err Error encountered in processing
+ * @param {?boolean} handled True to stop processing message
+ */
+
+/**
+ * Handle a message Received
+ * @callback onMessage
+ * @param {!Message} message Discourse Message Object
+ * @param {?Post} post Discourse Post message refers to
+ * @param {completed} callback Completion Callback
+ */
+
+/**
+ * @typedef Registration
+ * @type {object}
+ * @property {string} name Name of registration
+ * @property {onMessage} onMessage Message handler
+ */
+
+/**
+ * List of active Modules
+ */
 var modules = [],
+    /**
+     * Channel/Module registrations
+     * @type Object.<string, Registration>
+     */
     registrations = {},
+    /**
+     * Channels that message-bus is listenting to
+     * @type Object.<string,number>
+     */
     channels = {},
+    /**
+     * TL1 cooldown timer
+     * @type Object.<string,datetime>
+     */
     TL1Timer = {},
+    /**
+     * Last time Notifications were polled. Used for watchdog.
+     * @type {datetime}
+     */
     notifyTime = (new Date()).getTime(),
+    /**
+     * Notification type Ids to Names
+     * @enum {string}
+     * @readonly
+     */
     notifyTypes = {
         1: 'mentioned',
         2: 'replied',
@@ -29,14 +75,46 @@ var modules = [],
         11: 'linked',
         12: 'granted_badge'
     },
+    /**
+     * Information about currently processing message.
+     * Used for watchdog
+     */
     messageInfo = {
+        /**
+         * Time message-bus was polled
+         * @type datetime
+         */
         poll: Date.now(),
+        /**
+         * Message that is being processed
+         * @type {Message}
+         */
         message: null,
+        /**
+         * Time message started processing
+         * @type {datetime}
+         */
         time: null,
+        /**
+         * Currently processing module name
+         * @type {string}
+         */
         module: null,
+        /**
+         * Time module started processing
+         * @type {datetime}
+         */
         moduleTime: null
     },
+    /**
+     * Set to indicate that bot is active. Used by warchdog
+     * @type {boolean}
+     */
     responsive = true,
+    /**
+     * Time /notifications was last polled. Used by watchdog
+     * @type {datetime}
+     */
     notificationTime = Date.now();
 
 function watchdog(callback) {
@@ -112,6 +190,13 @@ async.forever(function (next) {
 });
 
 // Handle a single message for all interested modules
+/**
+ * Handle a message
+ * @param {string} message - The message to handle
+ * @param {string} post - Some sort of post
+ * @param {function} callback - The callback to call after the
+ *  message has been handled
+ */
 function handleMessage(message, post, callback) {
     var interestedModules = registrations[message.channel];
     // Run modules in sequence, not in parallel
@@ -243,15 +328,16 @@ function pollNotifications(callback) {
         notificationsPending = true;
         return callback();
     }
+
     function complete(err, msg) {
         notificationsActive = false;
-            if (notificationsPending) {
-                notificationsPending = false;
-                setTimeout(function () {
-                    pollNotifications(function () {});
-                }, 0);
-            }
-            callback(err, msg);
+        if (notificationsPending) {
+            notificationsPending = false;
+            setTimeout(function () {
+                pollNotifications(function () {});
+            }, 0);
+        }
+        callback(err, msg);
     }
     notificationsActive = true;
     notificationTime = Date.now();
@@ -496,17 +582,5 @@ exports.begin = function begin(sockModules) {
                 });
             });
         }
-        /*
-        async.forever(function (next) {
-            function doNext() {
-                setTimeout(next, 1 * 60 * 1000);
-            }
-            var trigger = Date.now() - 24 * 60 * 60 * 1000;
-            if (resetOn < trigger) {
-                return updateRegistrations(doNext, true);
-            }
-            doNext();
-        });
-        */
     }, true);
 };
