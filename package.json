@@ -11,11 +11,12 @@
   ],
   "dependencies": {
     "async": "~0.2.8",
+    "cheerio": "^0.19.0",
+    "ent": "^2.2.0",
     "js-yaml": "^3.2.3",
     "request": "^2.42.0",
-    "xregexp": "^2.0.0",
-    "xregexp": "^2.0.0",
-    "sync-exec": "^0.5.0"
+    "sync-exec": "^0.5.0",
+    "xregexp": "^2.0.0"
   },
   "devDependencies": {
     "grunt": "~0.4.5",
