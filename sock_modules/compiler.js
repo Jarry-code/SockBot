@@ -5,12 +5,15 @@ var async = require('async'),
     rpc = require('./compiler/jsonrpc'),
     cheerio = require('cheerio'),
     ent = require('ent');
+var database = require('../database'),
+    db;
 var errors,
-        languages,
-        config,
-        user, pass,
-        JsonRpcWrapper,
-        ideone;
+    discourse,
+    languages,
+    config,
+    user, pass,
+    JsonRpcWrapper,
+    ideone;
 
 exports.name = 'Compiler';
 exports.version = '0.8';
@@ -39,10 +42,17 @@ exports.commands = {
         params: [],
         defaults: {},
         description: 'list languages supported.'
+    },
+    challenge: {
+        handler: challenge,
+        params: [],
+        defaults: {},
+        description: 'start a new coding challenge.'
     }
 };
 
-exports.begin = function begin(_, c) {
+exports.begin = function begin(browser, c) {
+    discourse = browser;
     languages = yml.safeLoad(fs.readFileSync('./sock_modules/compiler/languages.yml'));
     config = c.modules[exports.name];
     errors = c.errors;
@@ -53,6 +63,17 @@ exports.begin = function begin(_, c) {
             this.client.call(method, params, callback, null, this.path);
         };
     };
+    database.getDatabase(exports.name, function (err, data) {
+        ready = !err;
+        db = data;
+        db.createIndex({
+            modified: -1,
+            owner: 1
+        });
+        if (err) {
+            discourse.warn('ToDo Startup Error: ' + err);
+        }
+    });
 
 };
 
@@ -74,30 +95,7 @@ function compile(payload, callback) {
     var source = ent.decode(code.html());
     
     
-    if(payload.$arguments[0] === 'langID')
-    {
-        lang = payload.$arguments[1];
-    }
-    else
-    {
-        var langCode;
-        if(payload.$arguments[0] === 'lang')
-        {
-           langCode = payload.$arguments[1];
-        }
-        else
-        {
-            langCode = code.attr('class').split('-')[1];
-        }
-
-        Object.keys(languages).forEach(function(index){
-            if(languages[index].code == langCode) {
-                lang = index;
-                return false;
-            }
-
-        });
-    }
+    lang = detetectLanguage(payload, code);
     
     if(lang == undefined)
     {
@@ -117,6 +115,35 @@ function compile(payload, callback) {
         }
     });
 };
+
+function detectLanguage(payload,code)
+{
+    if(payload.$arguments[0] === 'langID')
+    {
+        return payload.$arguments[1];
+    }
+    else
+    {
+        var langCode;
+        if(payload.$arguments[0] === 'lang')
+        {
+           langCode = payload.$arguments[1];
+        }
+        else
+        {
+            langCode = code.attr('class').split('-')[1];
+        }
+        var lang;
+        Object.keys(languages).forEach(function(index){
+            if(languages[index].code == langCode) {
+                lang = index;
+                return false;
+            }
+
+        });
+        return lang;
+    }
+}
 
 function wait(link, callback) {
     ideone = new JsonRpcWrapper();
@@ -178,4 +205,17 @@ function supported(_, callback) {
     }, "");
 
     callback(null, supList);
+};
+
+function challenge(_, callback) {
+
+    var challenge = {
+        id: discourse.uuid(),
+        input: 'asd',
+        output: 'asd'
+    };
+    var challengesCollection = db.collection("batch_document_insert_collection_safe");
+    challengesCollection.insert(challenge);
+    
+    callback(null, 'challenge created id:'+challenge.id);
 };
