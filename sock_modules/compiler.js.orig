@@ -9,12 +9,16 @@ var database = require('../database'),
     db;
 var errors,
     discourse,
-        languages,
-        config,
-        user, pass,
-        JsonRpcWrapper,
+    languages,
+    config,
+    user, pass,
+    JsonRpcWrapper,
+<<<<<<< HEAD
     ideone,
     ready = false;
+=======
+    ideone;
+>>>>>>> draft challenge 0.0.1
 
 exports.name = 'Compiler';
 exports.version = '0.8';
