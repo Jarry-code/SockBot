@@ -13,7 +13,8 @@ var errors,
     config,
     user, pass,
     JsonRpcWrapper,
-    ideone;
+    ideone,
+    ready = false;
 
 exports.name = 'Compiler';
 exports.version = '0.8';
