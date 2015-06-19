@@ -1,0 +1,8 @@
+---
+username: GLaDOS
+password: testpassword
+admin:
+  owner: Jarry
+modules:
+  BadTranslator:
+    enabled: true

@@ -37,16 +37,18 @@
     "pg": "^4.1.1",
     "plotly": "^0.2.15",
     "request-debug": "^0.1.1",
+<<<<<<< HEAD
     "tingodb": "^0.3.4",
     "cheerio": "^0.19.0",
     "ent": "^2.2.0"
-  }
-
+=======
+    "tingodb": "^0.3.4"
+  },
   "scripts": {
     "start": "node --harmony SockBot.js",
     "lint": "gulp lint lintTests",
     "test": "gulp test",
     "gulp": "gulp"
+>>>>>>> test gulpfile integration for v0.16 docs
   }
-
 }

@@ -1,0 +1,15 @@
+---
+username: GLaDOS
+password: testpassword
+notifications: true
+verbose: true
+timestamp: true
+datestamp: false
+processActed: false
+admin:
+  owner: Jarry
+modules:
+  Compiler:
+    enabled: true
+    user: jarry
+    pass: abrete
