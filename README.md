@@ -1,10 +1,17 @@
+[![Build Status](https://travis-ci.org/SockDrawer/SockBot.svg)](https://travis-ci.org/SockDrawer/SockBot)
+[![Coverage Status](https://coveralls.io/repos/SockDrawer/SockBot/badge.svg)](https://coveralls.io/r/SockDrawer/SockBot)
+[![Docs Status](https://readthedocs.org/projects/sockbot/badge/)](http://sockbot.readthedocs.org
+
+[![Dependency Status](https://david-dm.org/SockDrawer/SockBot.svg)](https://david-dm.org/SockDrawer/SockBot)
+[![devDependency Status](https://david-dm.org/SockDrawer/SockBot/dev-status.svg)](https://david-dm.org/SockDrawer/SockBot#info=devDependencies)
+[![optionalDependency Status](https://david-dm.org/SockDrawer/SockBot/optional-status.svg)](https://david-dm.org/SockDrawer/SockBot#info=optionalDependencies)
+
+[![Stories in Ready](https://badge.waffle.io/sockdrawer/sockbot.png?label=ready&title=Ready)](https://waffle.io/sockdrawer/sockbot)
+[![Stories in Progress](https://badge.waffle.io/sockdrawer/sockbot.png?label=in%20progress&title=In%20Progress)](https://waffle.io/sockdrawer/sockbot)
+
 # Welcome to SockBot!
 
-[![Build Status](https://travis-ci.org/SockDrawer/SockBot.svg)](https://travis-ci.org/SockDrawer/SockBot)
-
 Sockbot - A sock puppet Robot worthy of TheDailyWTF that interfaces with what.thedailywtf.com. SO META!
-
-[API Docs](docs/index.html)
 
 
 NOTA BENE
@@ -62,17 +69,17 @@ For providing the lovely and amusing Error messages that sockbot will occasional
 
 | Contributor | Commits |
 |---|---:|
-| RaceProUK | 198 |
+| RaceProUK | 200 |
 | Accalia Elementia | 181 |
 | Accalia | 150 |
-| Accalia de Elementia | 64 |
+| Accalia de Elementia | 67 |
 | Yami | 34 |
 | Yamikuronue | 17 |
 | Andrew Cook | 15 |
 | PleegWat | 15 |
+| Travis-CI | 11 |
 | yamikuronue | 10 |
 | Javier Rotelli | 6 |
-| Travis-CI | 6 |
 | abarker-TDWTF | 4 |
 | Ben Lubar | 3 |
 | riking | 3 |

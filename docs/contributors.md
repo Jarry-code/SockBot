@@ -1,15 +1,15 @@
 | Contributor | Commits |
 |---|---:|
-| RaceProUK | 198 |
+| RaceProUK | 200 |
 | Accalia Elementia | 181 |
 | Accalia | 150 |
-| Accalia de Elementia | 64 |
-| Yami | 35 |
+| Accalia de Elementia | 69 |
+| Yami | 34 |
 | Yamikuronue | 17 |
 | Andrew Cook | 15 |
 | PleegWat | 15 |
+| Travis-CI | 12 |
 | yamikuronue | 10 |
-| Travis-CI | 7 |
 | Javier Rotelli | 6 |
 | abarker-TDWTF | 4 |
 | Ben Lubar | 3 |
