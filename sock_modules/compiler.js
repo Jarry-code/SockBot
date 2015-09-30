@@ -96,7 +96,7 @@ function compile(payload, callback) {
     var source = ent.decode(code.html());
     
     
-    lang = detetectLanguage(payload, code);
+    lang = detectLanguage(payload, code);
     
     if(lang == undefined)
     {
